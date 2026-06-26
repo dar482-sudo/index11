@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX Mall Intelligence | AI-Powered Mall Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c0: #060A14;
+  --c1: #080C18;
+  --c2: #0D1526;
+  --c3: #172038;
+  --c4: #1E2840;
+  --gold: #C9A54A;
+  --gold2: #E8C97A;
+  --gold-pale: rgba(201,165,74,.13);
+  --gold-border: rgba(201,165,74,.28);
+  --em: #00B87C;
+  --em-pale: rgba(0,184,124,.1);
+  --blue: #60A5FA;
+  --purple: #A78BFA;
+  --red: #F87171;
+  --slate: #7E8BA0;
+  --text: #DDE3F0;
+  --border: rgba(255,255,255,.07);
+  --r: 12px;
+  --ease: .3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--c1);color:var(--text);overflow-x:hidden;line-height:1.6}
+
+/* UTIL */
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.08}
+.h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.9rem);font-weight:700;line-height:1.15;margin-bottom:18px}
+.lead{font-size:1.05rem;color:var(--slate);line-height:1.85}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 30px;border-radius:8px;font-weight:700;font-size:.9rem;text-decoration:none;border:none;cursor:pointer;transition:var(--ease)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080F}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(201,165,74,.28)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--gold-border);color:var(--gold)}
+
+/* FADE-UP */
+.fu{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.fu.vis{opacity:1;transform:none}
+.fu.d1{transition-delay:.1s}.fu.d2{transition-delay:.18s}.fu.d3{transition-delay:.26s}
+.fu.d4{transition-delay:.34s}.fu.d5{transition-delay:.42s}.fu.d6{transition-delay:.5s}
+
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:18px 0;background:rgba(6,8,20,.82);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);transition:padding var(--ease)}
+.nav.slim{padding:11px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.logo-name{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:#fff}
+.logo-name span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:30px;list-style:none}
+.nav-links a{color:var(--slate);text-decoration:none;font-size:.85rem;font-weight:500;transition:color var(--ease)}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080F !important;padding:9px 22px;border-radius:6px;font-weight:700 !important}
+
+/* ===== HERO ===== */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:130px 0 90px}
+.hero-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 72% 50%,rgba(201,165,74,.07) 0%,transparent 65%),radial-gradient(ellipse 35% 45% at 18% 35%,rgba(0,184,124,.05) 0%,transparent 60%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:56px 56px}
+.hero-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative;z-index:2}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:100px;padding:6px 15px;font-size:.78rem;color:var(--gold);font-weight:500;margin-bottom:26px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--em);animation:blink 2.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.hero-head{margin-bottom:22px}
+.hero-head .accent{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.08rem;color:var(--slate);line-height:1.85;margin-bottom:38px;max-width:530px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+
+/* FLOATING KPI CARDS — SIGNATURE ELEMENT */
+.kpi-stage{position:relative;height:500px}
+.kpi-card{position:absolute;background:rgba(13,21,38,.92);border:1px solid var(--border);border-radius:var(--r);padding:17px 20px;backdrop-filter:blur(16px)}
+.kpi-card:nth-child(1){top:0;left:8%;animation:flt1 6.2s ease-in-out infinite}
+.kpi-card:nth-child(2){top:16%;right:0;animation:flt2 7.1s ease-in-out infinite}
+.kpi-card:nth-child(3){top:43%;left:0;animation:flt3 5.7s ease-in-out infinite}
+.kpi-card:nth-child(4){top:54%;right:6%;animation:flt4 6.6s ease-in-out infinite}
+.kpi-card:nth-child(5){bottom:2%;left:18%;animation:flt5 7.4s ease-in-out infinite}
+@keyframes flt1{0%,100%{transform:translateY(0)}50%{transform:translateY(-17px)}}
+@keyframes flt2{0%,100%{transform:translateY(0)}50%{transform:translateY(-21px)}}
+@keyframes flt3{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+@keyframes flt4{0%,100%{transform:translateY(0)}50%{transform:translateY(-19px)}}
+@keyframes flt5{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.kl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);margin-bottom:7px}
+.kv{font-family:'JetBrains Mono',monospace;font-size:1.75rem;font-weight:700;line-height:1;margin-bottom:5px}
+.kc{font-size:.75rem;display:flex;align-items:center;gap:4px}
+.kc.up{color:var(--em)}.kc.dn{color:var(--red)}
+.kg{color:var(--gold)}.ke{color:var(--em)}.kb{color:var(--blue)}.kp{color:var(--purple)}
+.spark{display:flex;align-items:flex-end;gap:3px;margin-top:10px;height:28px}
+.sb{flex:1;border-radius:2px;min-height:3px}
+
+/* ===== TICKER ===== */
+.ticker{background:var(--c3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;overflow:hidden}
+.tk-track{display:flex;gap:52px;animation:tkrun 28s linear infinite;white-space:nowrap}
+.tk-item{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.tk-l{font-size:.78rem;color:var(--slate)}
+.tk-v{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--gold)}
+.tk-sep{width:1px;height:14px;background:var(--border)}
+@keyframes tkrun{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ===== MINDSET ===== */
+.s-mindset{padding:100px 0;background:var(--c2)}
+.mindset-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}
+.cbox{padding:20px;border-radius:var(--r)}
+.cbox-old{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2)}
+.cbox-new{background:var(--em-pale);border:1px solid rgba(0,184,124,.22)}
+.cbox-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.cbox-old .cbox-label{color:var(--red)}.cbox-new .cbox-label{color:var(--em)}
+.cbox p{font-size:.87rem;line-height:1.65;color:var(--slate)}
+.pillars{display:grid;gap:14px}
+.pillars h3{font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:6px}
+.pillar{display:flex;align-items:flex-start;gap:14px;padding:18px;background:var(--c3);border:1px solid var(--border);border-radius:var(--r)}
+.p-num{width:34px;height:34px;background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--gold);flex-shrink:0}
+.p-title{font-size:.9rem;font-weight:600;margin-bottom:3px}
+.p-body{font-size:.8rem;color:var(--slate);line-height:1.6}
+
+/* ===== SERVICES ===== */
+.s-services{padding:100px 0;background:var(--c1)}
+.s-head{text-align:center;max-width:700px;margin:0 auto 56px}
+.srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.srv-card{background:var(--c2);border:1px solid var(--border);border-radius:var(--r);padding:26px;transition:var(--ease);position:relative;overflow:hidden}
+.srv-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:var(--ease)}
+.srv-card:hover{border-color:var(--gold-border);transform:translateY(-5px)}
+.srv-card:hover::after{opacity:1}
+.s-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.srv-card h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:10px}
+.srv-card p{font-size:.84rem;color:var(--slate);line-height:1.72;margin-bottom:14px}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{font-size:.68rem;padding:4px 9px;border-radius:100px;background:var(--c3);color:var(--slate);border:1px solid var(--border)}
+
+/* ===== AI EDGE ===== */
+.s-ai{padding:100px 0;background:var(--c2)}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.ai-feats{display:grid;gap:16px;margin-top:28px}
+.af{display:flex;gap:14px;padding:18px;background:var(--c1);border:1px solid var(--border);border-radius:var(--r);transition:var(--ease)}
+.af:hover{border-color:rgba(0,184,124,.25)}
+.af-icon{width:38px;height:38px;border-radius:8px;background:var(--em-pale);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.af h4{font-size:.9rem;font-weight:600;margin-bottom:3px}
+.af p{font-size:.8rem;color:var(--slate);line-height:1.6}
+
+/* Dashboard mockup */
+.dash{background:var(--c1);border:1px solid var(--border);border-radius:16px;padding:22px}
+.dash-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.dash-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--slate)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--em);animation:blink 2s infinite}
+.d-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.dm{padding:14px;background:var(--c2);border-radius:8px;border:1px solid var(--border)}
+.dm-l{font-size:.68rem;color:var(--slate);margin-bottom:5px}
+.dm-v{font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700}
+.d-chart{background:var(--c2);border-radius:8px;padding:14px;border:1px solid var(--border)}
+.d-bars{display:flex;align-items:flex-end;gap:6px;height:70px}
+.d-bar-wrap{display:flex;gap:2px;align-items:flex-end;flex:1;height:100%}
+.d-bar{flex:1;border-radius:3px 3px 0 0}
+.d-legend{display:flex;gap:14px;margin-top:8px}
+.dl{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--slate)}
+.dl-dot{width:9px;height:9px;border-radius:2px}
+.d-ai-tip{margin-top:14px;padding:12px;background:var(--em-pale);border:1px solid rgba(0,184,124,.2);border-radius:8px}
+.d-ai-label{font-size:.68rem;color:var(--em);margin-bottom:3px}
+.d-ai-text{font-size:.8rem;color:var(--slate)}
+
+/* ===== OBJECTIVES (TABS) ===== */
+.s-obj{padding:100px 0;background:var(--c1)}
+.obj-tabs{display:flex;justify-content:center;gap:8px;margin:0 auto 36px;flex-wrap:wrap}
+.ot{padding:9px 18px;border-radius:6px;font-size:.84rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--slate);transition:var(--ease)}
+.ot.on,.ot:hover{background:var(--gold-pale);border-color:var(--gold-border);color:var(--gold)}
+.obj-panel{display:none}
+.obj-panel.on{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.oi{background:var(--c2);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:var(--ease)}
+.oi:hover{border-color:var(--gold-border);transform:translateY(-3px)}
+.oi-ico{font-size:26px;margin-bottom:11px}
+.oi h4{font-weight:600;font-size:.9rem;margin-bottom:7px}
+.oi p{font-size:.82rem;color:var(--slate);line-height:1.65}
+
+/* ===== REVENUE ===== */
+.s-rev{padding:100px 0;background:var(--c3)}
+.rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+.rev-streams{display:grid;gap:10px}
+.rs{display:flex;align-items:center;gap:14px;padding:15px 18px;background:var(--c1);border:1px solid var(--border);border-radius:8px;transition:var(--ease)}
+.rs:hover{border-color:var(--gold-border);transform:translateX(4px)}
+.rs-ico{width:34px;height:34px;border-radius:7px;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.rs-txt{font-size:.88rem;font-weight:500}
+.rs-bdg{margin-left:auto;font-size:.68rem;padding:3px 9px;border-radius:100px;background:var(--em-pale);color:var(--em);border:1px solid rgba(0,184,124,.2);white-space:nowrap}
+.rev-calc{background:var(--c2);border:1px solid var(--border);border-radius:var(--r);padding:26px;position:sticky;top:110px}
+.rev-calc h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold);margin-bottom:6px}
+.rev-calc .sub{font-size:.8rem;color:var(--slate);margin-bottom:18px}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.rr:last-of-type{border:none}
+.rr-l{font-size:.84rem;color:var(--slate)}
+.rr-v{font-family:'JetBrains Mono',monospace;font-size:.87rem;font-weight:600;color:var(--em)}
+.rev-total{background:var(--gold-pale);border-radius:8px;padding:15px;margin-top:14px;text-align:center}
+.rt-l{font-size:.7rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.rt-v{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--gold)}
+.rt-note{font-size:.72rem;color:var(--slate);margin-top:11px;text-align:center}
+
+/* ===== CHAT ===== */
+.s-chat{padding:100px 0;background:var(--c1)}
+.chat-wrap{max-width:800px;margin:0 auto;background:var(--c2);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.chat-bar{background:var(--c3);padding:15px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.chat-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:16px}
+.chat-bar-name{font-size:.88rem;font-weight:600}
+.chat-bar-status{font-size:.72rem;color:var(--em);display:flex;align-items:center;gap:4px}
+.chat-msgs{height:420px;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+.chat-msgs::-webkit-scrollbar{width:3px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;gap:9px}
+.msg.me{flex-direction:row-reverse}
+.m-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.msg.ai .m-av{background:linear-gradient(135deg,var(--gold),var(--gold2))}
+.msg.me .m-av{background:var(--c3)}
+.m-bub{max-width:75%;padding:11px 15px;border-radius:12px;font-size:.86rem;line-height:1.65}
+.msg.ai .m-bub{background:var(--c3);border:1px solid var(--border);border-radius:4px 12px 12px 12px}
+.msg.me .m-bub{background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:12px 4px 12px 12px}
+.typing-ind{display:flex;gap:4px;align-items:center;padding:3px 0}
+.td{width:6px;height:6px;border-radius:50%;background:var(--slate);animation:typ 1.4s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes typ{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-9px)}}
+.chat-sugg{padding:0 22px 14px;display:flex;gap:7px;flex-wrap:wrap}
+.cs{font-size:.76rem;padding:6px 13px;border-radius:100px;background:var(--c3);border:1px solid var(--border);color:var(--slate);cursor:pointer;transition:var(--ease)}
+.cs:hover{border-color:var(--gold-border);color:var(--gold)}
+.chat-inp-wrap{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px}
+.chat-inp{flex:1;background:var(--c1);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.86rem;outline:none;transition:var(--ease);resize:none}
+.chat-inp:focus{border-color:var(--gold-border)}
+.chat-send{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080F;border:none;border-radius:8px;padding:0 18px;font-weight:700;cursor:pointer;transition:var(--ease);font-size:.86rem;display:flex;align-items:center;gap:7px}
+.chat-send:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,165,74,.28)}
+.chat-send:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ===== PLANS ===== */
+.s-plans{padding:100px 0;background:var(--c2)}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
+.plan{background:var(--c1);border:1px solid var(--border);border-radius:16px;padding:30px;position:relative;transition:var(--ease)}
+.plan.feat{border-color:var(--gold-border);transform:scale(1.04)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080F;font-size:.7rem;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.plan-tier{font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.15em;color:var(--slate);margin-bottom:7px}
+.plan-name{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;margin-bottom:14px}
+.plan-desc{font-size:.85rem;color:var(--slate);line-height:1.72;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.plan-feats{list-style:none;display:grid;gap:11px;margin-bottom:26px}
+.plan-feats li{display:flex;align-items:flex-start;gap:9px;font-size:.85rem;color:var(--slate)}
+.plan-feats li::before{content:'✓';color:var(--em);font-weight:700;flex-shrink:0;margin-top:1px}
+.plan-btn{display:block;text-align:center;padding:13px;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:var(--ease);width:100%;text-decoration:none}
+.plan-btn.g{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080F}
+.plan-btn.g:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,165,74,.28)}
+.plan-btn.o{background:transparent;border:1px solid var(--border);color:var(--text)}
+.plan-btn.o:hover{border-color:var(--gold-border);color:var(--gold)}
+
+/* ===== EXPAND ===== */
+.s-expand{padding:100px 0;background:var(--c1)}
+.exp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:48px}
+.ec{padding:26px;background:var(--c2);border:1px solid var(--border);border-radius:var(--r);transition:var(--ease)}
+.ec:hover{border-color:var(--gold-border);transform:translateY(-4px)}
+.ec-ico{font-size:30px;margin-bottom:14px}
+.ec h4{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:8px}
+.ec p{font-size:.84rem;color:var(--slate);line-height:1.7}
+
+/* ===== CTA ===== */
+.s-cta{padding:100px 0;background:var(--c3);text-align:center;position:relative;overflow:hidden}
+.s-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 50% 50%,rgba(201,165,74,.07) 0%,transparent 65%)}
+.cta-inner{position:relative;z-index:2;max-width:680px;margin:0 auto}
+.cta-btns{display:flex;gap:14px;justify-content:center;margin-top:36px;flex-wrap:wrap}
+
+/* ===== FOOTER ===== */
+.footer{background:var(--c0);border-top:1px solid var(--border);padding:58px 0 28px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+.foot-brand p{font-size:.84rem;color:var(--slate);line-height:1.75;margin-top:12px;max-width:255px}
+.foot-col h5{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);margin-bottom:14px}
+.foot-col ul{list-style:none;display:grid;gap:9px}
+.foot-col ul a{font-size:.84rem;color:var(--slate);text-decoration:none;transition:color var(--ease)}
+.foot-col ul a:hover{color:var(--gold)}
+.foot-btm{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid var(--border)}
+.foot-btm p{font-size:.78rem;color:var(--slate)}
+.foot-btm span{color:var(--gold)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  .hero-layout,.mindset-grid,.ai-grid,.rev-grid{grid-template-columns:1fr;gap:48px}
+  .kpi-stage{height:280px}
+  .srv-grid,.plans-grid{grid-template-columns:repeat(2,1fr)}
+  .plan.feat{transform:none}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .h1{font-size:2rem}
+  .srv-grid,.plans-grid,.obj-panel.on,.exp-grid,.compare{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr;gap:28px}
+  .foot-btm{flex-direction:column;gap:10px;text-align:center}
+  .kpi-stage{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+  .fu{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-mark">🏢</div>
+        <div class="logo-name">APEX<span>Mall</span></div>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#ai">AI Edge</a></li>
+        <li><a href="#objectives">Strategy</a></li>
+        <li><a href="#revenue">Revenue</a></li>
+        <li><a href="#plans">Plans</a></li>
+        <li><a href="#chat" class="nav-cta">Talk to AI</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="wrap">
+    <div class="hero-layout">
+      <div>
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          AI-Powered Mall Intelligence Platform
+        </div>
+        <h1 class="h1 hero-head">
+          Transform Mall<br>
+          Management into<br>
+          <span class="accent">Recurring Profit</span>
+        </h1>
+        <p class="hero-sub">
+          Enterprise-level mall management powered by AI analytics, predictive intelligence, and proven operational frameworks. We turn every management contract into a multi-stream profit center.
+        </p>
+        <div class="hero-actions">
+          <a href="#chat" class="btn btn-gold">💬 Talk to Our AI</a>
+          <a href="#services" class="btn btn-ghost">Explore System →</a>
+        </div>
+      </div>
+
+      <!-- SIGNATURE: FLOATING KPI CARDS -->
+      <div class="kpi-stage">
+        <div class="kpi-card">
+          <div class="kl">Occupancy Rate</div>
+          <div class="kv kg">94.7%</div>
+          <div class="kc up">↑ +3.2% this quarter</div>
+          <div class="spark">
+            <div class="sb" style="height:38%;background:rgba(201,165,74,.3)"></div>
+            <div class="sb" style="height:52%;background:rgba(201,165,74,.4)"></div>
+            <div class="sb" style="height:44%;background:rgba(201,165,74,.35)"></div>
+            <div class="sb" style="height:68%;background:rgba(201,165,74,.5)"></div>
+            <div class="sb" style="height:58%;background:rgba(201,165,74,.4)"></div>
+            <div class="sb" style="height:88%;background:#C9A54A"></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">Monthly Revenue</div>
+          <div class="kv ke">+23%</div>
+          <div class="kc up">↑ vs prior period</div>
+          <div class="spark">
+            <div class="sb" style="height:48%;background:rgba(0,184,124,.3)"></div>
+            <div class="sb" style="height:62%;background:rgba(0,184,124,.4)"></div>
+            <div class="sb" style="height:55%;background:rgba(0,184,124,.35)"></div>
+            <div class="sb" style="height:76%;background:rgba(0,184,124,.5)"></div>
+            <div class="sb" style="height:88%;background:#00B87C"></div>
+            <div class="sb" style="height:100%;background:#00B87C"></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">Foot Traffic</div>
+          <div class="kv kb">+31%</div>
+          <div class="kc up">↑ After campaign</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">CSAT Score</div>
+          <div class="kv kp">4.8 / 5</div>
+          <div class="kc up">↑ Excellent</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kl">Utility Cost Reduction</div>
+          <div class="kv ke">−18%</div>
+          <div class="kc up">↑ AI monitoring</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="tk-track">
+    <div class="tk-item"><span class="tk-l">Avg Occupancy</span><span class="tk-v">94.7%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Revenue Uplift</span><span class="tk-v">+23–35%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Cost Reduction</span><span class="tk-v">−15–22%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">SOPs Delivered</span><span class="tk-v">200+</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">KPIs Monitored</span><span class="tk-v">150+</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Departments Covered</span><span class="tk-v">12</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Foot Traffic Increase</span><span class="tk-v">+31%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Customer Satisfaction</span><span class="tk-v">4.8 / 5</span></div>
+    <div class="tk-sep"></div>
+    <!-- duplicate for infinite loop -->
+    <div class="tk-item"><span class="tk-l">Avg Occupancy</span><span class="tk-v">94.7%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Revenue Uplift</span><span class="tk-v">+23–35%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Cost Reduction</span><span class="tk-v">−15–22%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">SOPs Delivered</span><span class="tk-v">200+</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">KPIs Monitored</span><span class="tk-v">150+</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Departments Covered</span><span class="tk-v">12</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Foot Traffic Increase</span><span class="tk-v">+31%</span></div>
+    <div class="tk-sep"></div>
+    <div class="tk-item"><span class="tk-l">Customer Satisfaction</span><span class="tk-v">4.8 / 5</span></div>
+  </div>
+</div>
+
+<!-- MINDSET -->
+<section class="s-mindset">
+  <div class="wrap">
+    <div class="mindset-grid">
+      <div>
+        <div class="eyebrow fu">A Different Mindset</div>
+        <h2 class="h2 fu d1">The Question Has Changed</h2>
+        <p class="lead fu d2">
+          The old question was: <em>"How do I manage a mall?"</em><br><br>
+          The real question is: <strong style="color:var(--text)">"How do I make this management contract generate recurring profits for my company?"</strong>
+        </p>
+        <div class="compare fu d3">
+          <div class="cbox cbox-old">
+            <div class="cbox-label">❌ Old Thinking</div>
+            <p>Focus only on the management fee. React to problems. Measure success by occupancy alone. Leave value-added revenue on the table.</p>
+          </div>
+          <div class="cbox cbox-new">
+            <div class="cbox-label">✅ APEX Approach</div>
+            <p>Build multiple recurring revenue streams. Predict and prevent problems with AI. Measure by net profit per contract.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillars fu d2">
+        <h3 style="color:var(--text);margin-bottom:16px">Three Pillars of Recurring Profit</h3>
+        <div class="pillar">
+          <div class="p-num">01</div>
+          <div>
+            <div class="p-title">Management Contract</div>
+            <div class="p-body">Structured, performance-linked management fees with transparent KPIs and milestone-based incentives — aligned to what owners actually care about.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="p-num">02</div>
+          <div>
+            <div class="p-title">Value-Added Services</div>
+            <div class="p-body">Parking, advertising, events, pop-ups, cleaning, security, and digital marketing — often generating more profit than the base management fee itself.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="p-num">03</div>
+          <div>
+            <div class="p-title">AI Efficiency Gains</div>
+            <div class="p-body">Predictive maintenance, automated reporting, and utility optimization reduce operating costs 15–22%, boosting net margin on every single contract.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="s-services" id="services">
+  <div class="wrap">
+    <div class="s-head fu">
+      <div class="eyebrow">Enterprise System</div>
+      <h2 class="h2">Comprehensive Mall Management System</h2>
+      <p class="lead">Everything a world-class mall needs — delivered as a complete, deployable system that outperforms what any traditional management company offers.</p>
+    </div>
+    <div class="srv-grid">
+      <div class="srv-card fu d1">
+        <div class="s-icon" style="background:rgba(201,165,74,.15)">📋</div>
+        <h3>Standard Operating Procedures</h3>
+        <p>200+ SOPs covering every department and scenario — from daily opening procedures to emergency protocols, all aligned with international retail standards.</p>
+        <div class="tags"><span class="tag">Operations</span><span class="tag">Security</span><span class="tag">Maintenance</span><span class="tag">Retail</span></div>
+      </div>
+      <div class="srv-card fu d2">
+        <div class="s-icon" style="background:rgba(0,184,124,.15)">🏗️</div>
+        <h3>Organizational Structure</h3>
+        <p>Complete org chart with clear reporting lines, defined spans of control, and cross-functional collaboration protocols optimized for mall operations at scale.</p>
+        <div class="tags"><span class="tag">HR Framework</span><span class="tag">Governance</span><span class="tag">RACI Charts</span></div>
+      </div>
+      <div class="srv-card fu d3">
+        <div class="s-icon" style="background:rgba(96,165,250,.15)">📝</div>
+        <h3>Job Descriptions</h3>
+        <p>Detailed JDs for every position — from Mall Director to front-line team members — with pre-defined KPIs, competency frameworks, and performance benchmarks.</p>
+        <div class="tags"><span class="tag">All Levels</span><span class="tag">KPI-Linked</span><span class="tag">Competency Maps</span></div>
+      </div>
+      <div class="srv-card fu d1">
+        <div class="s-icon" style="background:rgba(167,139,250,.15)">✅</div>
+        <h3>Inspection Checklists</h3>
+        <p>Digital daily inspection checklists for every area — common areas, washrooms, parking, fire safety, and tenant stores. Photo evidence and mobile-first by design.</p>
+        <div class="tags"><span class="tag">Daily</span><span class="tag">Mobile-Ready</span><span class="tag">Photo Evidence</span></div>
+      </div>
+      <div class="srv-card fu d2">
+        <div class="s-icon" style="background:rgba(248,113,113,.15)">📊</div>
+        <h3>Management Reports</h3>
+        <p>Automated daily, weekly, and monthly reports — occupancy, revenue, footfall, complaints, maintenance, and financial performance. One-click generation from live data.</p>
+        <div class="tags"><span class="tag">Daily</span><span class="tag">Weekly Digest</span><span class="tag">Monthly Board Pack</span></div>
+      </div>
+      <div class="srv-card fu d3">
+        <div class="s-icon" style="background:rgba(201,165,74,.15)">🎯</div>
+        <h3>KPI Framework</h3>
+        <p>150+ KPIs across financial, operational, customer, and tenant dimensions — with targets, industry benchmarks, and automated alerts when thresholds are breached.</p>
+        <div class="tags"><span class="tag">Financial</span><span class="tag">Operational</span><span class="tag">Customer</span><span class="tag">Tenant</span></div>
+      </div>
+      <div class="srv-card fu d1">
+        <div class="s-icon" style="background:rgba(0,184,124,.15)">🚀</div>
+        <h3>90-Day Launch Plan</h3>
+        <p>Detailed operations and marketing plan for the first 90 days — quick wins, team activation, tenant engagement, and traffic-building campaigns from day one.</p>
+        <div class="tags"><span class="tag">Operations</span><span class="tag">Marketing</span><span class="tag">Tenant Relations</span></div>
+      </div>
+      <div class="srv-card fu d2">
+        <div class="s-icon" style="background:rgba(96,165,250,.15)">📈</div>
+        <h3>Power BI Dashboard</h3>
+        <p>Real-time operational and financial performance dashboard in Power BI and Excel — drill-down by department, floor, zone, and tenant. Built for board-level decisions.</p>
+        <div class="tags"><span class="tag">Real-time</span><span class="tag">Power BI</span><span class="tag">Excel</span></div>
+      </div>
+      <div class="srv-card fu d3">
+        <div class="s-icon" style="background:rgba(167,139,250,.15)">🤖</div>
+        <h3>AI Analytics Layer</h3>
+        <p>Predictive traffic modeling, complaint pattern analysis with NLP, utility anomaly detection, and tenant performance scoring — all continuously learning from your data.</p>
+        <div class="tags"><span class="tag">Predictive AI</span><span class="tag">NLP</span><span class="tag">Anomaly Detection</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI EDGE -->
+<section class="s-ai" id="ai">
+  <div class="wrap">
+    <div class="ai-grid">
+      <div>
+        <div class="eyebrow fu">Technology Edge</div>
+        <h2 class="h2 fu d1">What No Competitor Can Match</h2>
+        <p class="lead fu d2">While others rely on manual reporting and reactive management, APEX uses AI and data science to give clients a measurable competitive advantage — before problems arise, not after.</p>
+        <div class="ai-feats">
+          <div class="af fu d1">
+            <div class="af-icon">🔮</div>
+            <div>
+              <h4>Peak Traffic Prediction</h4>
+              <p>Forecast busy periods with 92% accuracy using historical data — enabling proactive staffing, inventory planning, and event scheduling before it's needed.</p>
+            </div>
+          </div>
+          <div class="af fu d2">
+            <div class="af-icon">💬</div>
+            <div>
+              <h4>Complaint Pattern Analysis</h4>
+              <p>NLP-powered analysis of all customer feedback surfaces recurring issues before they become crises — improving CSAT scores by an average of 40%.</p>
+            </div>
+          </div>
+          <div class="af fu d3">
+            <div class="af-icon">⚡</div>
+            <div>
+              <h4>Utility Consumption Intelligence</h4>
+              <p>Monitor electricity and water usage by zone in real-time. Detect anomalies, identify waste patterns, and reduce utility costs by 15–20%.</p>
+            </div>
+          </div>
+          <div class="af fu d4">
+            <div class="af-icon">🏪</div>
+            <div>
+              <h4>Tenant Performance Scoring</h4>
+              <p>AI-driven scoring of tenant sales, lease compliance, and store quality — with automated recommendations to optimize your tenant mix continuously.</p>
+            </div>
+          </div>
+          <div class="af fu d5">
+            <div class="af-icon">📑</div>
+            <div>
+              <h4>Automated Report Generation</h4>
+              <p>Management reports generated automatically from live data — eliminating manual data gathering and saving 15+ staff hours every week.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD MOCKUP -->
+      <div class="dash fu d2">
+        <div class="dash-hdr">
+          <span class="dash-title">APEX INTELLIGENCE / LIVE DASHBOARD</span>
+          <div class="live-dot"></div>
+        </div>
+        <div class="d-metrics">
+          <div class="dm"><div class="dm-l">Today's Footfall</div><div class="dm-v" style="color:var(--blue)">12,847</div></div>
+          <div class="dm"><div class="dm-l">Occupancy</div><div class="dm-v" style="color:var(--gold)">94.7%</div></div>
+          <div class="dm"><div class="dm-l">Revenue vs Target</div><div class="dm-v" style="color:var(--em)">↑ 23%</div></div>
+          <div class="dm"><div class="dm-l">Open Issues</div><div class="dm-v" style="color:var(--purple)">3</div></div>
+        </div>
+        <div class="d-chart">
+          <div style="font-size:.7rem;color:var(--slate);margin-bottom:8px">Weekly Traffic — Forecast vs Actual</div>
+          <div class="d-bars" id="dashBars"></div>
+          <div class="d-legend">
+            <div class="dl"><div class="dl-dot" style="background:var(--gold)"></div> Actual</div>
+            <div class="dl"><div class="dl-dot" style="background:rgba(201,165,74,.3)"></div> Forecast</div>
+          </div>
+        </div>
+        <div class="d-ai-tip">
+          <div class="d-ai-label">🤖 AI RECOMMENDATION</div>
+          <div class="d-ai-text">Peak traffic predicted Friday 4–7 PM. Recommend 3 additional staff on floor 2 near food court to maintain service levels.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section class="s-obj" id="objectives">
+  <div class="wrap">
+    <div style="text-align:center;max-width:700px;margin:0 auto 48px">
+      <div class="eyebrow fu">Strategic Framework</div>
+      <h2 class="h2 fu d1">Four Pillars of Mall Excellence</h2>
+      <p class="lead fu d2">Every strategy we deploy maps directly to one of four outcomes that drive real value for mall owners and investors.</p>
+    </div>
+    <div class="obj-tabs fu d2">
+      <button class="ot on" data-t="traffic">🚶 Foot Traffic</button>
+      <button class="ot" data-t="sales">💰 Tenant Sales</button>
+      <button class="ot" data-t="costs">⚙️ Operating Costs</button>
+      <button class="ot" data-t="value">🏆 Market Value</button>
+    </div>
+
+    <div class="obj-panel on" id="tp-traffic">
+      <div class="oi fu"><div class="oi-ico">🎪</div><h4>Events & Entertainment</h4><p>Regular programming of events, pop-up experiences, and entertainment acts that give shoppers a reason to visit beyond just retail transactions.</p></div>
+      <div class="oi fu d1"><div class="oi-ico">📅</div><h4>Seasonal Campaigns</h4><p>12-month marketing calendar with campaigns for Ramadan, Eid, Summer, and Back-to-School — each with integrated digital and in-mall activations.</p></div>
+      <div class="oi fu d2"><div class="oi-ico">🏷️</div><h4>Premium Tenant Mix</h4><p>Strategic tenant mix planning to attract anchor brands that drive footfall and position the mall as the premium retail destination in its catchment area.</p></div>
+      <div class="oi fu d3"><div class="oi-ico">📱</div><h4>Digital Marketing</h4><p>Social media management, influencer partnerships, and targeted digital advertising that reaches shoppers before they decide where to go.</p></div>
+      <div class="oi fu d4"><div class="oi-ico">🎁</div><h4>Loyalty Programs</h4><p>AI-personalized customer loyalty programs that reward repeat visits and increase average spend across all participating tenants simultaneously.</p></div>
+      <div class="oi fu d5"><div class="oi-ico">⭐</div><h4>Customer Experience</h4><p>Physical and digital touchpoint improvements — wayfinding, parking, restroom standards, and staff training — that make every visit memorable.</p></div>
+    </div>
+
+    <div class="obj-panel" id="tp-sales">
+      <div class="oi fu"><div class="oi-ico">🗺️</div><h4>Tenant Mix Optimization</h4><p>Data-driven analysis to identify the ideal tenant mix — balancing anchors, F&B, fashion, services, and entertainment by floor, zone, and customer segment.</p></div>
+      <div class="oi fu d1"><div class="oi-ico">📣</div><h4>Tenant Promo Support</h4><p>Coordinated promotional campaigns spotlighting individual tenants through mall-wide channels — increasing their visibility and driving direct sales uplift.</p></div>
+      <div class="oi fu d2"><div class="oi-ico">📊</div><h4>Sales Performance Reports</h4><p>Monthly sales performance analysis for each tenant with category benchmarking and actionable improvement recommendations — not just data, but insights.</p></div>
+      <div class="oi fu d3"><div class="oi-ico">🎊</div><h4>Mall-Wide Events</h4><p>Coordinated events benefiting all retailers simultaneously — extending dwell time, increasing basket size, and driving impulse purchases across the entire mall.</p></div>
+      <div class="oi fu d4"><div class="oi-ico">🔄</div><h4>Traffic Conversion</h4><p>Physical layout, signage, and tenant placement strategies that convert more of your existing footfall into actual purchases for every tenant category.</p></div>
+      <div class="oi fu d5"><div class="oi-ico">🤝</div><h4>True Partnership Model</h4><p>Position APEX as a genuine partner, not just an operator — by actively working to grow each tenant's profitability, we ensure they renew and recommend.</p></div>
+    </div>
+
+    <div class="obj-panel" id="tp-costs">
+      <div class="oi fu"><div class="oi-ico">⚡</div><h4>Utility Monitoring</h4><p>Real-time electricity and water consumption tracking by zone with AI anomaly detection — typically saving 15–20% on utility bills within the first 90 days.</p></div>
+      <div class="oi fu d1"><div class="oi-ico">🔧</div><h4>Preventive Maintenance</h4><p>AI-optimized PPM schedules based on equipment age, usage, and manufacturer data — reducing equipment breakdown costs by up to 40%.</p></div>
+      <div class="oi fu d2"><div class="oi-ico">📋</div><h4>Contractor Performance</h4><p>Monthly contractor KPI reviews with scoring, penalty clauses, and competitive re-tendering to keep service quality high and costs competitive.</p></div>
+      <div class="oi fu d3"><div class="oi-ico">📲</div><h4>Operations Digitization</h4><p>Digital checklists, work orders, and reporting eliminate paper-based processes — reducing admin costs and dramatically improving data accuracy and auditability.</p></div>
+      <div class="oi fu d4"><div class="oi-ico">💼</div><h4>Supplier Negotiation</h4><p>Annual review of all supplier contracts with market benchmarking and consolidated purchasing leverage to secure consistently better terms.</p></div>
+      <div class="oi fu d5"><div class="oi-ico">📉</div><h4>Zero-Based Budgeting</h4><p>Annual zero-based budget reviews that challenge every line item — eliminating legacy spend and reallocating budget to highest-impact activities.</p></div>
+    </div>
+
+    <div class="obj-panel" id="tp-value">
+      <div class="oi fu"><div class="oi-ico">🏠</div><h4>High Occupancy</h4><p>Target and maintain 95%+ occupancy through proactive tenant retention, strategic vacancy marketing, and an active waitlist of qualified brands.</p></div>
+      <div class="oi fu d1"><div class="oi-ico">😊</div><h4>Customer Satisfaction</h4><p>Systematic CSAT measurement with NPS tracking — a 4.5+ score correlates directly with higher dwell time, repeat visits, and improved tenant sales.</p></div>
+      <div class="oi fu d2"><div class="oi-ico">💹</div><h4>Tenant Profitability</h4><p>Profitable tenants renew at better rates, attract other premium brands, and create a virtuous cycle of rising market value for the entire asset.</p></div>
+      <div class="oi fu d3"><div class="oi-ico">⚙️</div><h4>Operational Excellence</h4><p>ISO-aligned standards and documented processes reduce key-person dependency and make the asset more attractive to institutional investors and buyers.</p></div>
+      <div class="oi fu d4"><div class="oi-ico">🌟</div><h4>Premium Positioning</h4><p>Brand strategy positioning your mall as the premier retail destination in its catchment area — commanding higher rents and attracting better tenant profiles.</p></div>
+      <div class="oi fu d5"><div class="oi-ico">📡</div><h4>Data-Driven Valuation</h4><p>Comprehensive operational data documentation supports higher property valuations and better financing terms from institutional lenders and investors.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVENUE STREAMS -->
+<section class="s-rev" id="revenue">
+  <div class="wrap">
+    <div class="rev-grid">
+      <div>
+        <div class="eyebrow fu">Beyond the Management Fee</div>
+        <h2 class="h2 fu d1">Don't Leave Revenue on the Table</h2>
+        <p class="lead fu d2" style="margin-bottom:28px">Your management fee is just the beginning. APEX helps you build additional revenue streams that often exceed the base fee — turning every contract into a multi-stream profit center from day one.</p>
+        <div class="rev-streams">
+          <div class="rs fu"><div class="rs-ico">🚗</div><div class="rs-txt">Parking Management</div><div class="rs-bdg">High Value</div></div>
+          <div class="rs fu d1"><div class="rs-ico">📺</div><div class="rs-txt">Advertising & Digital Screens</div><div class="rs-bdg">Recurring</div></div>
+          <div class="rs fu d2"><div class="rs-ico">🎪</div><div class="rs-txt">Event & Exhibition Management</div><div class="rs-bdg">High Margin</div></div>
+          <div class="rs fu d3"><div class="rs-ico">🏪</div><div class="rs-txt">Pop-Up Store Leasing</div><div class="rs-bdg">Quick Win</div></div>
+          <div class="rs fu d4"><div class="rs-ico">🧹</div><div class="rs-txt">Cleaning Services</div><div class="rs-bdg">Stable</div></div>
+          <div class="rs fu d5"><div class="rs-ico">🔒</div><div class="rs-txt">Security Management</div><div class="rs-bdg">Stable</div></div>
+          <div class="rs fu"><div class="rs-ico">🔧</div><div class="rs-txt">Maintenance Supervision</div><div class="rs-bdg">Recurring</div></div>
+          <div class="rs fu d1"><div class="rs-ico">📱</div><div class="rs-txt">Digital Marketing for Tenants</div><div class="rs-bdg">Growing</div></div>
+        </div>
+      </div>
+
+      <div class="rev-calc fu d2">
+        <h3>Sample Revenue Projection</h3>
+        <p class="sub">Based on a mid-sized mall with 200 tenants</p>
+        <div class="rr"><span class="rr-l">Base Management Fee</span><span class="rr-v">EGP 200,000</span></div>
+        <div class="rr"><span class="rr-l">Parking Management</span><span class="rr-v">EGP 80,000</span></div>
+        <div class="rr"><span class="rr-l">Advertising Revenue Share</span><span class="rr-v">EGP 60,000</span></div>
+        <div class="rr"><span class="rr-l">Event Management</span><span class="rr-v">EGP 45,000</span></div>
+        <div class="rr"><span class="rr-l">Pop-Up Store Leasing</span><span class="rr-v">EGP 35,000</span></div>
+        <div class="rr"><span class="rr-l">Tenant Digital Marketing</span><span class="rr-v">EGP 30,000</span></div>
+        <div class="rev-total">
+          <div class="rt-l">Total Monthly Revenue Potential</div>
+          <div class="rt-v">EGP 450,000</div>
+        </div>
+        <p class="rt-note">2.25× your base management fee through value-added services</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI CHAT -->
+<section class="s-chat" id="chat">
+  <div class="wrap">
+    <div style="text-align:center;max-width:600px;margin:0 auto 44px" class="fu">
+      <div class="eyebrow">AI Consultant</div>
+      <h2 class="h2">Ask Our AI Anything</h2>
+      <p class="lead">Get instant, expert answers about mall management strategies, our services, revenue opportunities, and how we can transform your property — available 24/7.</p>
+    </div>
+
+    <div class="chat-wrap fu d1">
+      <div class="chat-bar">
+        <div class="chat-av">🏢</div>
+        <div>
+          <div class="chat-bar-name">APEX Intelligence AI</div>
+          <div class="chat-bar-status"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--em);animation:blink 2s infinite"></span> Online — Mall Management Expert</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg ai">
+          <div class="m-av">🏢</div>
+          <div class="m-bub">Hello! I'm the APEX Mall Intelligence AI. I can help you understand our comprehensive mall management system, explore revenue opportunities for your property, and explain how we use AI to outperform traditional management companies. What would you like to know?</div>
+        </div>
+      </div>
+      <div class="chat-sugg">
+        <button class="cs" onclick="useSugg(this)">How can you increase foot traffic?</button>
+        <button class="cs" onclick="useSugg(this)">What's in the 90-day plan?</button>
+        <button class="cs" onclick="useSugg(this)">How does AI analytics work?</button>
+        <button class="cs" onclick="useSugg(this)">What makes you different?</button>
+      </div>
+      <div class="chat-inp-wrap">
+        <textarea class="chat-inp" id="chatIn" placeholder="Ask about our mall management services..." rows="1" onkeydown="chatKey(event)"></textarea>
+        <button class="chat-send" id="sendBtn" onclick="doSend()">Send ➤</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="s-plans" id="plans">
+  <div class="wrap">
+    <div style="text-align:center;max-width:620px;margin:0 auto 56px" class="fu">
+      <div class="eyebrow">Service Plans</div>
+      <h2 class="h2">Choose Your Package</h2>
+      <p class="lead">Three structured service tiers designed to match the scale and complexity of your mall — with clear deliverables and measurable outcomes at every level.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan fu d1">
+        <div class="plan-tier">Foundation</div>
+        <div class="plan-name">Essential Management</div>
+        <p class="plan-desc">For property owners establishing professional management foundations and governance frameworks for the first time.</p>
+        <ul class="plan-feats">
+          <li>Complete SOP library (50+ procedures)</li>
+          <li>Organizational structure design</li>
+          <li>Job descriptions for all positions</li>
+          <li>Digital daily inspection checklists</li>
+          <li>Monthly management reports</li>
+          <li>Basic KPI dashboard (Excel)</li>
+          <li>30-day launch support</li>
+        </ul>
+        <button class="plan-btn o" onclick="goToChat()">Enquire Now</button>
+      </div>
+
+      <div class="plan feat fu d2">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-tier">Professional</div>
+        <div class="plan-name">AI-Powered Operations</div>
+        <p class="plan-desc">Full enterprise system with AI analytics, automated reporting, and strategic revenue optimization for mid-to-large malls.</p>
+        <ul class="plan-feats">
+          <li>Everything in Foundation, plus:</li>
+          <li>AI traffic prediction & analytics</li>
+          <li>Power BI real-time dashboard</li>
+          <li>NLP complaint pattern analysis</li>
+          <li>Utility consumption monitoring</li>
+          <li>Tenant performance scoring</li>
+          <li>Full 90-day operations & marketing plan</li>
+          <li>Revenue stream strategy & setup</li>
+          <li>Quarterly strategic reviews</li>
+        </ul>
+        <button class="plan-btn g" onclick="goToChat()">Get Started Today</button>
+      </div>
+
+      <div class="plan fu d3">
+        <div class="plan-tier">Enterprise</div>
+        <div class="plan-name">Full Partnership</div>
+        <p class="plan-desc">End-to-end partnership for major retail destinations — with dedicated team, performance-linked fees, and full service delivery.</p>
+        <ul class="plan-feats">
+          <li>Everything in Professional, plus:</li>
+          <li>On-site dedicated management team</li>
+          <li>Full service delivery (cleaning, security)</li>
+          <li>Advertising & events management</li>
+          <li>Tenant digital marketing services</li>
+          <li>Investor-grade reporting package</li>
+          <li>Board-level presentations & strategy</li>
+          <li>Performance-linked fee structure</li>
+          <li>Annual strategy workshop</li>
+        </ul>
+        <button class="plan-btn o" onclick="goToChat()">Discuss Enterprise</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPANSION -->
+<section class="s-expand" id="expand">
+  <div class="wrap">
+    <div style="text-align:center;max-width:680px;margin:0 auto" class="fu">
+      <div class="eyebrow">Future Growth</div>
+      <h2 class="h2">Build a Mall Management Company</h2>
+      <p class="lead">As your company grows with APEX's systems and frameworks, new business lines open up — each with its own substantial revenue potential.</p>
+    </div>
+    <div class="exp-grid">
+      <div class="ec fu d1">
+        <div class="ec-ico">🏛️</div>
+        <h4>Consulting Services</h4>
+        <p>Provide advisory services to smaller shopping malls that can't afford full management — high-margin consulting fees with no direct operational risk or headcount.</p>
+      </div>
+      <div class="ec fu d2">
+        <div class="ec-ico">🏗️</div>
+        <h4>Property Management Expansion</h4>
+        <p>Manage commercial centers on behalf of property owners across multiple locations — shared management infrastructure dramatically lowers your cost per property.</p>
+      </div>
+      <div class="ec fu d3">
+        <div class="ec-ico">🧠</div>
+        <h4>Leasing Strategy Advisory</h4>
+        <p>Advise investors on tenant selection, lease structuring, and positioning — a high-value, high-margin service that scales expertise rather than headcount.</p>
+      </div>
+      <div class="ec fu d4">
+        <div class="ec-ico">🎪</div>
+        <h4>Commercial Events Business</h4>
+        <p>Build a standalone events and exhibitions company serving retail destinations across the region — leveraging your operational network and relationships.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="s-cta" id="contact">
+  <div class="wrap">
+    <div class="cta-inner fu">
+      <div class="eyebrow">Ready to Transform Your Mall?</div>
+      <h2 class="h2">Start Generating Recurring Profit Today</h2>
+      <p class="lead">Join the growing network of mall owners who've moved beyond traditional management — into AI-powered, data-driven retail excellence that creates real value.</p>
+      <div class="cta-btns">
+        <button class="btn btn-gold" onclick="goToChat()">💬 Talk to Our AI Consultant</button>
+        <a href="mailto:contact@apexmall.com" class="btn btn-ghost">✉️ Email Our Team</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo" style="margin-bottom:14px">
+          <div class="logo-mark">🏢</div>
+          <div class="logo-name">APEX<span>Mall</span></div>
+        </div>
+        <p>Enterprise-level mall management intelligence — combining AI, data analytics, and proven operational expertise to maximize every retail asset's performance and profitability.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="#services">SOP Development</a></li>
+          <li><a href="#services">KPI Framework</a></li>
+          <li><a href="#ai">AI Analytics</a></li>
+          <li><a href="#services">Power BI Dashboard</a></li>
+          <li><a href="#revenue">Revenue Optimization</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Solutions</h5>
+        <ul>
+          <li><a href="#objectives">Foot Traffic Growth</a></li>
+          <li><a href="#objectives">Tenant Sales Boost</a></li>
+          <li><a href="#objectives">Cost Reduction</a></li>
+          <li><a href="#objectives">Asset Value Growth</a></li>
+          <li><a href="#revenue">Events Management</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About APEX</a></li>
+          <li><a href="#">Case Studies</a></li>
+          <li><a href="#">Insights Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-btm">
+      <p>© 2025 APEX Mall Intelligence. Built with <span>AI</span>.</p>
+      <p>Turning mall operations into <span>recurring profit</span>.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── SCROLL ANIMATIONS ─────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis') });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fu').forEach(el => obs.observe(el));
+
+// ─── NAV SLIM ──────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('slim', scrollY > 60);
+});
+
+// ─── OBJ TABS ──────────────────────────────────────────
+document.querySelectorAll('.ot').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ot').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.obj-panel').forEach(p => p.classList.remove('on'));
+    tab.classList.add('on');
+    document.getElementById('tp-' + tab.dataset.t).classList.add('on');
+  });
+});
+
+// ─── DASHBOARD BARS ────────────────────────────────────
+const actual = [68,75,72,80,95,100,88];
+const forecast = [70,73,75,82,90,98,85];
+const barsEl = document.getElementById('dashBars');
+actual.forEach((a, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'd-bar-wrap';
+  const fb = document.createElement('div');
+  fb.className = 'd-bar';
+  fb.style.cssText = `height:${forecast[i]}%;background:rgba(201,165,74,.28);flex:1`;
+  const ab = document.createElement('div');
+  ab.className = 'd-bar';
+  ab.style.cssText = `height:${a}%;background:#C9A54A;flex:1`;
+  wrap.appendChild(fb);
+  wrap.appendChild(ab);
+  barsEl.appendChild(wrap);
+});
+
+// ─── CHAT ──────────────────────────────────────────────
+const history = [];
+const SYS = `You are the Senior AI Consultant for APEX Mall Intelligence — an enterprise-level mall management company that transforms shopping malls into high-performance, data-driven retail destinations. You speak directly with mall owners, property investors, and developers who are evaluating whether to hire us. Your job is to educate, build trust, answer questions with precision, and guide them toward booking a consultation.
+
+════════════════════════════════════
+WHO WE ARE
+════════════════════════════════════
+APEX Mall Intelligence builds and operates Comprehensive Mall Management Systems — the full operational backbone that makes a mall run profitably. We are not a consulting firm that gives advice and leaves. We deliver real systems, real people, and real results. Our approach combines enterprise-level Standard Operating Procedures with AI-powered analytics, turning every department of a mall into a measurable, improvable operation.
+
+We work with mid-to-large shopping malls, commercial centers, and mixed-use retail properties. Our clients are typically property owners or investors who either have a new mall opening soon or an existing mall underperforming its potential.
+
+════════════════════════════════════
+OUR CORE DELIVERABLES (What We Actually Build)
+════════════════════════════════════
+
+1. STANDARD OPERATING PROCEDURES (SOPs)
+We write detailed SOPs for every department:
+- Operations Management (opening/closing procedures, daily walkthroughs, escalation protocols)
+- Housekeeping & Cleaning (cleaning schedules, zone maps, chemical standards, inspection logs)
+- Security (shift handovers, incident reporting, CCTV protocols, emergency response)
+- Maintenance (preventive maintenance schedules, work order systems, contractor management)
+- Customer Service (complaint handling, information desk scripts, CSAT measurement)
+- Leasing (tenant onboarding, lease compliance, renewal tracking, vacancy management)
+- Marketing (campaign calendars, event execution, social media SOPs, digital advertising)
+- Finance & Reporting (billing cycles, service charge collection, P&L reporting to owners)
+Each SOP includes the process steps, responsible person, frequency, and the KPI that measures it.
+
+2. ORGANIZATIONAL STRUCTURE & JOB DESCRIPTIONS
+We design the full org chart for the mall management team including:
+- Mall General Manager
+- Operations Manager
+- Department Heads (Security, Maintenance, Housekeeping, Marketing, Customer Service)
+- Zone Supervisors and frontline staff
+Every position has a written job description with responsibilities, KPIs, reporting line, and performance targets. This ensures accountability from day one.
+
+3. DAILY INSPECTION CHECKLISTS
+Digital mobile-first checklists for every area of the mall:
+- Common areas, washrooms, entrances, parking, food court, service corridors
+- Photo evidence capture for every issue
+- Automatic escalation if issues are not resolved within SLA
+- Weekly inspection summary report auto-generated
+
+4. MANAGEMENT REPORTS
+We deliver structured reports on three cycles:
+- Daily Report: footfall count, incidents, maintenance tickets opened/closed, cleaning compliance, parking revenue
+- Weekly Report: tenant sales index, visitor trend vs. last week, marketing campaign performance, utility consumption, open complaints
+- Monthly Report: full P&L review, occupancy status, KPI scorecard vs. targets, tenant performance ranking, market comparison, recommendations for next month
+
+5. KEY PERFORMANCE INDICATORS (KPIs) — 150+ tracked metrics
+Key KPIs we monitor and target:
+- Occupancy Rate: target >92%
+- Footfall Growth: target +15% YoY
+- Tenant Sales per sqm: benchmark varies by category
+- Customer Satisfaction Score (CSAT): target >4.5/5.0
+- Complaint Resolution Rate: target >95% within 24 hours
+- Preventive Maintenance Compliance: target >90%
+- Utility Cost per sqm: target 15-20% below industry average
+- Average Dwell Time: target >75 minutes
+- Repeat Visitor Rate: target >60%
+- Net Operating Income (NOI) Growth: target +20% Year 1
+
+6. 90-DAY LAUNCH PLAN
+Phase 1 — Days 1–30 (Foundation):
+Deploy SOPs across all departments. Hire and train the management team. Set up inspection systems, reporting dashboards, and communication protocols. Conduct baseline audit of all systems and financials.
+
+Phase 2 — Days 31–60 (Activation):
+Launch the first marketing campaign. Onboard tenants onto our performance tracking system. Begin AI data collection (footfall sensors, utility meters, complaint logs). Identify top 3 quick wins and execute them.
+
+Phase 3 — Days 61–90 (Optimization):
+First full monthly report delivered to owner. AI analytics producing first predictions and recommendations. Revenue stream diversification plan presented. Quarterly review and KPI target adjustment.
+
+7. POWER BI & EXCEL DASHBOARDS
+We build real-time dashboards that give the mall owner a live view of:
+- Daily footfall and hourly traffic heatmaps
+- Revenue by stream (management fee, parking, advertising, events, F&B, etc.)
+- Tenant performance league table (best and worst performers)
+- Maintenance ticket aging report
+- Utility consumption by zone
+- KPI red/amber/green status at a glance
+These are delivered as Power BI reports (interactive, live-connected) and Excel templates (for offline review).
+
+════════════════════════════════════
+AI-POWERED LAYER (What Makes Us Different)
+════════════════════════════════════
+
+1. TRAFFIC PREDICTION ENGINE
+Using 12+ months of historical footfall data, we predict peak hours with 92% accuracy. This tells the mall when to increase cleaning frequency, staff security checkpoints, open more cashier lanes, or launch flash promotions. Result: better experience on busy days, lower costs on slow days.
+
+2. COMPLAINT PATTERN ANALYSIS (NLP)
+Every customer complaint is tagged, categorized, and analyzed. Our AI identifies recurring patterns — for example, if 30% of complaints in Month 1 relate to parking confusion, we know to install better signage before it becomes a reputation issue. This prevents problems rather than reacting to them.
+
+3. AUTOMATED REPORTING
+Instead of managers spending 15+ hours per week writing reports, our system pulls live data and auto-generates the daily, weekly, and monthly reports. Managers review and send — they don't build from scratch. This saves significant management time and improves accuracy.
+
+4. UTILITY MONITORING & COST REDUCTION
+We install or integrate with smart meters to monitor electricity and water consumption in real time, by zone. Our AI detects abnormal consumption patterns (e.g., a broken HVAC running 24/7), immediately flags it, and calculates the cost of inaction. Typical result: 15–20% reduction in utility costs within 6 months.
+
+5. TENANT PERFORMANCE SCORING
+Each tenant receives a monthly AI-generated score based on: sales per sqm vs. category benchmark, footfall conversion rate, lease compliance, customer rating. Tenants in the bottom quartile receive a support visit and improvement plan. This protects occupancy and drives overall mall revenue.
+
+════════════════════════════════════
+THE RIGHT MINDSET — HOW TO MAKE MONEY FROM MALL MANAGEMENT
+════════════════════════════════════
+Most mall managers think: "How do I manage this mall?" 
+We think: "How does this management contract generate recurring profits?"
+
+There are two profit sources:
+1. The management fee itself (e.g., EGP 200,000/month)
+2. Value-added services revenue — often larger than the fee itself
+
+REVENUE STREAMS BEYOND THE MANAGEMENT FEE:
+- Parking Management: collect parking fees, optimize pricing by hour/day
+- Advertising & Digital Screens: sell screen time to brands, agencies, tenants
+- Event & Exhibition Management: organize seasonal events, brand activations, kids' zones
+- Pop-Up Store Leasing: short-term leasing of kiosks and temporary spaces
+- Cleaning Services: if your company provides the cleaning team, this is a separate contract
+- Security Management: if you staff the security team, separate revenue line
+- Maintenance Supervision: charge for managing contractors and work orders
+- Digital Marketing for Tenants: run their social media and paid ads for a monthly fee
+
+REAL EXAMPLE:
+Base management fee: EGP 200,000/month
++ Advertising revenue share: EGP 80,000
++ Events management: EGP 60,000
++ Pop-up leasing: EGP 50,000
++ Tenant digital marketing: EGP 40,000
++ Parking management: EGP 20,000
+TOTAL: EGP 450,000/month — 2.25x the base fee
+
+════════════════════════════════════
+STRATEGIC OBJECTIVES WE DELIVER AGAINST
+════════════════════════════════════
+
+HOW WE INCREASE FOOT TRAFFIC:
+- Organize regular events and entertainment activities (weekly family events, monthly seasonal campaigns)
+- Launch seasonal marketing campaigns (Ramadan, Summer, Back-to-School, Eid, New Year)
+- Strengthen the tenant mix with anchor brands and entertainment concepts
+- Improve the customer experience (wayfinding, cleanliness, staff friendliness, digital touchpoints)
+- Utilize digital marketing and social media (content calendar, paid social, influencer visits)
+- Develop customer loyalty programs (points system, VIP tier, exclusive offers)
+
+HOW WE INCREASE TENANT SALES:
+- Optimize the tenant mix — right brand in the right location for the right customer
+- Drive higher visitor traffic through events and marketing
+- Support tenants with joint promotional campaigns
+- Analyze each tenant's sales data and provide improvement recommendations monthly
+- Organize mall-wide sales events that benefit all retailers simultaneously
+
+HOW WE REDUCE OPERATING COSTS:
+- Monitor electricity and water consumption in real time (15-20% savings typical)
+- Optimize preventive maintenance — fix it before it breaks
+- Improve contractor performance through SLA management and penalty clauses
+- Digitize operations to eliminate paperwork (saves 20-30% of admin time)
+- Review all supplier contracts quarterly and negotiate better terms at scale
+
+HOW WE INCREASE MARKET VALUE:
+- Maintain occupancy above 92% (vacancy is the #1 value destroyer)
+- Improve CSAT score to 4.5+ (reputation drives premium positioning)
+- Increase tenant profitability so they renew and upgrade leases
+- Demonstrate operational excellence through structured investor-ready reporting
+- Position the mall as a premium retail destination in its catchment area
+
+════════════════════════════════════
+FUTURE BUSINESS EXPANSION
+════════════════════════════════════
+As your mall management company grows, APEX can help you expand into:
+1. Consulting Services: advise smaller malls on SOPs and structure (without taking on operations)
+2. Multi-Property Management: manage multiple malls under one management platform
+3. Leasing Advisory: advise investors on tenant selection, brand mix, and leasing strategy
+4. Commercial Events Business: build a dedicated events company serving malls and commercial venues
+
+════════════════════════════════════
+SERVICE PLANS & HOW TO START
+════════════════════════════════════
+
+FOUNDATION PLAN — For owners who want the system but will run operations themselves:
+Includes: Full SOPs for all departments, org structure, job descriptions for every role, daily inspection checklists, monthly reporting templates, core KPI framework (50 KPIs), 30 days of implementation support
+Best for: New mall openings, owners with a team in place who need structure
+
+PROFESSIONAL PLAN — Most popular — For owners who want full management capability:
+Includes everything in Foundation plus: AI analytics layer (traffic prediction, complaint analysis, tenant scoring), Power BI real-time dashboard, utility monitoring system, full 90-day launch plan, revenue stream strategy, quarterly performance review with APEX leadership
+Best for: Operating malls that want to improve performance and profitability
+
+ENTERPRISE PLAN — Full partnership — For owners who want APEX to run the mall:
+Includes everything in Professional plus: On-site APEX management team, end-to-end service delivery, advertising and events managed by APEX, investor-grade quarterly reporting, performance-linked management fee structure
+Best for: Investors who want a hands-off, professionally managed asset
+
+════════════════════════════════════
+HOW TO RESPOND TO CLIENTS
+════════════════════════════════════
+- Always respond in the same language as the client (Arabic or English)
+- Be specific and use real numbers — avoid vague statements
+- If a client describes their mall's problems, diagnose which of our services solves it
+- If a client asks about pricing, explain the value first, then guide them to book a free consultation for a custom quote
+- If a client asks how long it takes, explain the 90-day plan phases
+- If a client is skeptical, use the revenue stream math to show ROI
+- End every substantive answer with a soft invitation: ask if they'd like to schedule a free strategy call or if they have another question
+- Keep responses to 3-5 paragraphs maximum — professional, warm, and specific
+- Never make up statistics you are not sure of — say "typically" or "in our experience" when appropriate`;
+
+async function callAPI(msgs) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      system: SYS,
+      messages: msgs
+    })
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Error'); }
+  const d = await res.json();
+  return d.content[0].text;
+}
+
+function addMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + (role === 'user' ? 'me' : 'ai');
+  el.innerHTML = `<div class="m-av">${role === 'user' ? '👤' : '🏢'}</div><div class="m-bub"></div>`;
+  el.querySelector('.m-bub').textContent = text;
+  document.getElementById('chatMsgs').appendChild(el);
+  document.getElementById('chatMsgs').scrollTop = 99999;
+}
+
+function addTyping() {
+  const el = document.createElement('div');
+  el.className = 'msg ai'; el.id = 'typing';
+  el.innerHTML = `<div class="m-av">🏢</div><div class="m-bub"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  document.getElementById('chatMsgs').appendChild(el);
+  document.getElementById('chatMsgs').scrollTop = 99999;
+}
+function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
+
+async function doSend() {
+  const inp = document.getElementById('chatIn');
+  const btn = document.getElementById('sendBtn');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = ''; inp.style.height = 'auto';
+  addMsg('user', msg);
+  history.push({ role: 'user', content: msg });
+  btn.disabled = true; btn.textContent = '...';
+  addTyping();
+  try {
+    const reply = await callAPI(history);
+    rmTyping(); addMsg('assistant', reply);
+    history.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    rmTyping();
+    addMsg('assistant', 'I\'m having trouble connecting right now. Please email us at contact@apexmall.com — our team responds within 2 hours.');
+  }
+  btn.disabled = false; btn.textContent = 'Send ➤';
+}
+
+function chatKey(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } }
+function useSugg(b) { document.getElementById('chatIn').value = b.textContent; doSend(); }
+function goToChat() { document.getElementById('chat').scrollIntoView({ behavior: 'smooth' }); }
+
+document.getElementById('chatIn').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+</script>
+</body>
+</html>
